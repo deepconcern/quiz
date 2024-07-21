@@ -1,0 +1,7 @@
+overwrite: true
+schema: "http://127.0.0.1:8000/graphql"
+documents: ["**/*.tsx"]
+ignoreNoDocuments: true,
+generates:
+  src/gql/:
+    preset: client
