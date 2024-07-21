@@ -12,7 +12,7 @@ use dotenvy::dotenv;
 use graphql::{Mutation, Query, Schema};
 use juniper::EmptySubscription;
 use juniper_rocket::{graphiql_source, playground_source, GraphQLRequest, GraphQLResponse};
-use mongodb::Client;
+use mongodb::Database;
 use rocket::{build, response::content::RawHtml, State};
 use rocket_cors::{AllowedOrigins, CorsOptions};
 
@@ -32,13 +32,13 @@ fn playground() -> RawHtml<String> {
 }
 
 #[get("/graphql?<request..>")]
-async fn get_graphql(db_client: &State<Client>, request: GraphQLRequest, schema: &State<Schema>) -> GraphQLResponse {
-    request.execute(&schema, &Context::new(db_client.inner())).await
+async fn get_graphql(db: &State<Database>, request: GraphQLRequest, schema: &State<Schema>) -> GraphQLResponse {
+    request.execute(&schema, &Context::new(db)).await
 }
 
 #[post("/graphql", data = "<request>")]
-async fn post_graphql(db_client: &State<Client>, request: GraphQLRequest, schema: &State<Schema>) -> GraphQLResponse {
-    request.execute(&schema, &Context::new(db_client.inner())).await
+async fn post_graphql(db: &State<Database>, request: GraphQLRequest, schema: &State<Schema>) -> GraphQLResponse {
+    request.execute(&schema, &Context::new(db)).await
 }
 
 #[launch]
@@ -58,7 +58,7 @@ async fn rocket() -> _ {
 
     build()
         .attach(cors)
-        .manage(client)
+        .manage(client.default_database().unwrap())
         .manage(Schema::new(
             Query,
             Mutation,

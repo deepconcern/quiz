@@ -1,22 +1,20 @@
 use std::fmt::Display;
 
+use mongodb::bson::oid;
+
 #[derive(Clone, Debug)]
 pub enum ModelError {
-    MongoError(mongodb::error::Error),
     InsertError,
-    UpdateError,
+    MongoError(mongodb::error::Error),
+    OidError(oid::Error),
 }
 
 impl Display for ModelError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ModelError::InsertError => write!(f, "Could not insert document"),
-            ModelError::MongoError(error)=> {
-                write!(f, "Mongo Error: ")?;
-
-                error.fmt(f)
-            },
-            ModelError::UpdateError => write!(f, "Could not update document"),
+            ModelError::MongoError(error) => error.fmt(f),
+            ModelError::OidError(error) => error.fmt(f),
         }
     }
 }
@@ -24,5 +22,11 @@ impl Display for ModelError {
 impl From<mongodb::error::Error> for ModelError {
     fn from(value: mongodb::error::Error) -> Self {
         Self::MongoError(value)
+    }
+}
+
+impl From<oid::Error> for ModelError {
+    fn from(value: oid::Error) -> Self {
+        Self::OidError(value)
     }
 }

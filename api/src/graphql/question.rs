@@ -1,10 +1,8 @@
-use std::str::FromStr;
-
 use juniper::{graphql_object, FieldResult, GraphQLInputObject, GraphQLObject, ID};
 use mongodb::bson::oid::{self, ObjectId};
 
 use crate::context::Context;
-use crate::models;
+use crate::models::{self, BaseModel};
 
 #[derive(GraphQLObject)]
 pub struct Question {
@@ -31,11 +29,12 @@ struct CreateQuestion {
 }
 
 impl CreateQuestion {
-    fn to_model(&self) -> Result<models::NewQuestion, oid::Error> {
-        Ok(models::NewQuestion {
+    fn to_model(&self) -> Result<models::Question, oid::Error> {
+        Ok(models::Question {
             answer: self.answer.clone(),
+            id: ObjectId::new().to_string(),
             question: self.question.clone(),
-            quiz_template_id: ObjectId::from_str(&self.quiz_template_id)?,
+            quiz_template_id: self.quiz_template_id.clone(),
         })
     }
 }
@@ -48,11 +47,12 @@ struct EditQuestion {
 }
 
 impl EditQuestion {
-    fn to_model(&self) -> Result<models::UpdateQuestion, oid::Error> {
-        Ok(models::UpdateQuestion {
+    fn to_model(&self, id: &str) -> Result<models::Question, oid::Error> {
+        Ok(models::Question {
             answer: self.answer.clone(),
+            id: id.to_string(),
             question: self.question.clone(),
-            quiz_template_id: ObjectId::from_str(&self.quiz_template_id)?,
+            quiz_template_id: self.quiz_template_id.clone(),
         })
     }
 }
@@ -65,15 +65,13 @@ impl QuestionMutation {
     async fn create(&self, context: &Context, input: CreateQuestion) -> FieldResult<Question> {
         let input_model = input.to_model()?;
 
-        let model = models::Question::create(&context.database, &input_model).await?;
+        let model = context.questions.create(&input_model).await?;
 
         Ok(Question::from_model(&model))
     }
 
     async fn delete_by_id(&self, context: &Context, id: ID) -> FieldResult<bool> {
-        let db_id = ObjectId::from_str(&id)?;
-
-        let result = models::Question::delete_by_id(&context.database, &db_id).await?;
+        let result = context.questions.delete_by_id(&id.to_string()).await?;
 
         Ok(result)
     }
@@ -83,14 +81,12 @@ impl QuestionMutation {
         context: &Context,
         id: ID,
         input: EditQuestion,
-    ) -> FieldResult<Question> {
-        let input_model = input.to_model()?;
+    ) -> FieldResult<bool> {
+        let input_model = input.to_model(&id.to_string())?;
 
-        let db_id = ObjectId::from_str(&id)?;
-
-        let model = models::Question::update(&context.database, &db_id, &input_model).await?;
-
-        Ok(Question::from_model(&model))
+        let result = context.questions.update_by_id(&id.to_string(), &input_model).await?;
+        
+        Ok(result)
     }
 }
 
@@ -100,15 +96,13 @@ pub struct QuestionQuery;
 #[graphql(context = Context)]
 impl QuestionQuery {
     async fn all(&self, context: &Context) -> FieldResult<Vec<Question>> {
-        let models = models::Question::get_all(&context.database).await?;
+        let models = context.questions.read_all().await?;
 
         Ok(models.iter().map(Question::from_model).collect())
     }
 
     async fn by_id(&self, context: &Context, id: ID) -> FieldResult<Option<Question>> {
-        let db_id = ObjectId::from_str(&id)?;
-
-        let model = models::Question::get_by_id(&context.database, &db_id).await?;
+        let model = context.questions.read_by_id(&id.to_string()).await?;
 
         Ok(match model {
             Some(model) => Some(Question::from_model(&model)),

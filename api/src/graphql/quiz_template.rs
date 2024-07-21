@@ -1,12 +1,13 @@
 use std::str::FromStr;
 
-use juniper::{graphql_object, FieldResult, GraphQLInputObject, GraphQLObject, ID};
+use juniper::{graphql_object, FieldResult, GraphQLInputObject, ID};
+use mongodb::bson::doc;
 use mongodb::bson::oid::ObjectId;
 
 use super::question::Question;
 
 use crate::context::Context;
-use crate::models;
+use crate::models::{self, BaseModel};
 
 struct QuizTemplate {
     id: ID,
@@ -37,7 +38,9 @@ impl QuizTemplate {
     async fn questions(&self, context: &Context) -> FieldResult<Vec<Question>> {
         let id = ObjectId::from_str(&self.id.to_string())?;
 
-        let results = models::Question::get_by_quiz_template_id(&context.database, &id).await?;
+        let results = context.questions.read_by_filter(doc! {
+            "quiz_template_id": id,
+        }).await?;
 
         Ok(results.iter().map(Question::from_model).collect())
     }
@@ -49,16 +52,12 @@ struct CreateQuizTemplate {
 }
 
 impl CreateQuizTemplate {
-    fn to_model(&self) -> models::NewQuizTemplate {
-        models::NewQuizTemplate {
+    fn to_model(&self) -> models::QuizTemplate {
+        models::QuizTemplate {
+            id: ObjectId::new().to_string(),
             name: self.name.clone(),
         }
     }
-}
-
-#[derive(GraphQLObject)]
-struct CreateQuizTemplateError {
-    id: String,
 }
 
 #[derive(GraphQLInputObject)]
@@ -67,8 +66,9 @@ struct EditQuizTemplate {
 }
 
 impl EditQuizTemplate {
-    fn to_model(&self) -> models::UpdateQuizTemplate {
-        models::UpdateQuizTemplate {
+    fn to_model(&self, id: &str) -> models::QuizTemplate {
+        models::QuizTemplate {
+            id: id.to_string(),
             name: self.name.clone(),
         }
     }
@@ -82,15 +82,17 @@ impl QuizTemplateMutation {
     async fn create(&self, context: &Context, input: CreateQuizTemplate) -> FieldResult<QuizTemplate> {
         let input_model = input.to_model();
 
-        let model = models::QuizTemplate::create(&context.database, &input_model).await?;
+        let model = context.quiz_templates.create(&input_model).await?;
 
         Ok(QuizTemplate::from_model(&model))
     }
 
     async fn delete_by_id(&self, context: &Context, id: ID) -> FieldResult<bool> {
-        let db_id = ObjectId::from_str(&id)?;
+        context.questions.delete_by_filter(doc! {
+            "quiz_template_id": &id.to_string(),
+        }).await?;
 
-        let result = models::QuizTemplate::delete_by_id(&context.database, &db_id).await?;
+        let result = context.quiz_templates.delete_by_id(&id.to_string()).await?;
 
         Ok(result)
     }
@@ -100,14 +102,12 @@ impl QuizTemplateMutation {
         context: &Context,
         id: ID,
         input: EditQuizTemplate,
-    ) -> FieldResult<QuizTemplate> {
-        let input_model = input.to_model();
+    ) -> FieldResult<bool> {
+        let input_model = input.to_model(&id.to_string());
 
-        let db_id = ObjectId::from_str(&id)?;
+        let result = context.quiz_templates.update_by_id(&id.to_string(), &input_model).await?;
 
-        let model = models::QuizTemplate::update(&context.database, &db_id, &input_model).await?;
-
-        Ok(QuizTemplate::from_model(&model))
+        Ok(result)
     }
 }
 
@@ -117,15 +117,13 @@ pub struct QuizTemplateQuery;
 #[graphql(context = Context)]
 impl QuizTemplateQuery {
     async fn all(&self, context: &Context) -> FieldResult<Vec<QuizTemplate>> {
-        let models = models::QuizTemplate::get_all(&context.database).await?;
+        let models = context.quiz_templates.read_all().await?;
 
         Ok(models.iter().map(QuizTemplate::from_model).collect())
     }
 
     async fn by_id(&self, context: &Context, id: ID) -> FieldResult<Option<QuizTemplate>> {
-        let db_id = ObjectId::from_str(&id)?;
-
-        let model = models::QuizTemplate::get_by_id(&context.database, &db_id).await?;
+        let model = context.quiz_templates.read_by_id(&id.to_string()).await?;
 
         Ok(match model {
             Some(model) => Some(QuizTemplate::from_model(&model)),

@@ -1,13 +1,19 @@
-use mongodb::{Client, Database};
+use mongodb::Database;
+
+use crate::models::{Questions, QuizTemplates, Users};
 
 pub struct Context {
-    pub database: Database,
+    pub questions: Questions,
+    pub quiz_templates: QuizTemplates,
+    pub users: Users,
 }
 
 impl Context {
-    pub fn new(db_client: &Client) -> Self {
+    pub fn new(db: &Database) -> Self {
         Self {
-            database: db_client.default_database().unwrap(),
+            questions: Questions::new(&db),
+            quiz_templates: QuizTemplates::new(&db),
+            users: Users::new(&db),
         }
     }
 }
