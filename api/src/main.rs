@@ -1,11 +1,9 @@
 #[macro_use]
 extern crate rocket;
-extern crate rocket_db_pools;
 
 mod context;
 mod graphql;
 mod models;
-mod schema;
 
 use std::env::var;
 
