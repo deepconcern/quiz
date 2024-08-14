@@ -7,7 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import { ChangeEvent, FC, FormEvent, useCallback, useState } from "react";
 
-import { QuizTemplate } from "../../gql/graphql";
+import { QuizTemplate, User } from "../../gql/graphql";
 import {
   EDIT_QUIZ_TEMPLATE_MUTATION,
   GET_QUIZ_TEMPLATE_QUERY,
@@ -17,12 +17,14 @@ export type EditQuizTemplateDialogProps = {
   onClose: () => void;
   open: boolean;
   quizTemplate: QuizTemplate;
+  user: User;
 };
 
 export const EditQuizTemplateDialog: FC<EditQuizTemplateDialogProps> = ({
   onClose,
   open,
   quizTemplate,
+  user,
 }) => {
   const [name, setName] = useState(quizTemplate.name);
 
@@ -46,13 +48,14 @@ export const EditQuizTemplateDialog: FC<EditQuizTemplateDialogProps> = ({
           id: quizTemplate.id,
           input: {
             name,
+            userId: user.id,
           },
         },
       });
 
       onClose();
     },
-    [editQuizTemplate, name, onClose, quizTemplate.id]
+    [editQuizTemplate, name, onClose, quizTemplate.id, user]
   );
 
   return (

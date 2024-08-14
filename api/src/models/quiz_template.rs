@@ -21,6 +21,11 @@ pub struct QuizTemplate {
     )]
     pub id: String,
     pub name: String,
+    #[serde(
+        deserialize_with = "deserialize_hex_string_from_object_id",
+        serialize_with = "serialize_hex_string_as_object_id"
+    )]
+    pub user_id: String,
 }
 
 pub struct QuizTemplates {
@@ -35,6 +40,7 @@ impl BaseModel<QuizTemplate> for QuizTemplates {
     fn update_doc(&self, model: &QuizTemplate) -> Result<Document, super::error::ModelError> {
         Ok(doc! {
             "name": model.name.clone(),
+            "user_id": model.user_id.clone(),
         })
     }
 }

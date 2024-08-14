@@ -47,13 +47,13 @@ struct EditQuestion {
 }
 
 impl EditQuestion {
-    fn to_model(&self, id: &str) -> Result<models::Question, oid::Error> {
-        Ok(models::Question {
+    fn to_model(&self, id: &str) -> models::Question {
+        models::Question {
             answer: self.answer.clone(),
             id: id.to_string(),
             question: self.question.clone(),
             quiz_template_id: self.quiz_template_id.clone(),
-        })
+        }
     }
 }
 
@@ -82,7 +82,7 @@ impl QuestionMutation {
         id: ID,
         input: EditQuestion,
     ) -> FieldResult<bool> {
-        let input_model = input.to_model(&id.to_string())?;
+        let input_model = input.to_model(&id.to_string());
 
         let result = context.questions.update_by_id(&id.to_string(), &input_model).await?;
         

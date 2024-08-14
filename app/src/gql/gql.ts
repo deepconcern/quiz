@@ -21,7 +21,8 @@ const documents = {
     "\n  mutation EditQuizTemplate($id: ID!, $input: EditQuizTemplate!) {\n    quizTemplate {\n      edit(id: $id, input: $input)\n    }\n  }\n": types.EditQuizTemplateDocument,
     "\n  query GetQuestion($id: ID!) {\n    question {\n      byId(id: $id) {\n        answer\n        id\n        question\n      }\n    }\n  }\n": types.GetQuestionDocument,
     "\n  query GetQuizTemplate($id: ID!) {\n    quizTemplate {\n      byId(id: $id) {\n        id\n        name\n        questions {\n          answer\n          id\n          question\n        }\n      }\n    }\n  }\n": types.GetQuizTemplateDocument,
-    "\n  query GetQuizTemplates {\n    quizTemplate {\n      all {\n        id\n        name\n      }\n    }\n  }\n": types.GetQuizTemplatesDocument,
+    "\n  query GetQuizTemplates($userId: ID!) {\n    quizTemplate {\n      byUserId(userId: $userId) {\n        id\n        name\n      }\n    }\n  }\n": types.GetQuizTemplatesDocument,
+    "\n  query GetUser {\n    user {\n      id\n      username\n    }\n  }\n": types.GetUserDocument,
 };
 
 /**
@@ -73,7 +74,11 @@ export function graphql(source: "\n  query GetQuizTemplate($id: ID!) {\n    quiz
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query GetQuizTemplates {\n    quizTemplate {\n      all {\n        id\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetQuizTemplates {\n    quizTemplate {\n      all {\n        id\n        name\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query GetQuizTemplates($userId: ID!) {\n    quizTemplate {\n      byUserId(userId: $userId) {\n        id\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetQuizTemplates($userId: ID!) {\n    quizTemplate {\n      byUserId(userId: $userId) {\n        id\n        name\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetUser {\n    user {\n      id\n      username\n    }\n  }\n"): (typeof documents)["\n  query GetUser {\n    user {\n      id\n      username\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

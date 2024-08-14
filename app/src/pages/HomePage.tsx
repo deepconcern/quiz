@@ -11,37 +11,41 @@ import {
   FC,
   MouseEvent,
   useCallback,
-  useEffect,
   useState,
 } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import { Page } from "../components/Page";
-import { QuizTemplate } from "../gql/graphql";
+import { QuizTemplate, User } from "../gql/graphql";
 import { GET_QUIZ_TEMPLATES_QUERY } from "../queries";
 import { AddQuizTemplateDialog } from "../components/quiz-template-dialogs";
+import { useError } from "../hooks/useError";
+import { useUser } from "../hooks/useUser";
 
 type HomePageErrorProps = {
   error: ApolloError | string;
 };
 
+const HomePageAnonymous: FC = () => (
+  <div>Login to create quizzes</div>
+);
+
 const HomePageError: FC<HomePageErrorProps> = ({ error }) => {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
+  useError(error);
 
   return <div>ERROR</div>;
 };
 
-const HomePageLoading: FC = () => {
-  return <div>LOADING</div>;
-};
+const HomePageLoading: FC = () => (
+  <div>LOADING</div>
+);
 
 type HomePageDataProps = {
   quizTemplates: Omit<QuizTemplate, "questions">[];
+  user: User;
 };
 
-const HomePageData: FC<HomePageDataProps> = ({ quizTemplates }) => {
+const HomePageData: FC<HomePageDataProps> = ({ quizTemplates, user }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   const handleDialogClose = useCallback(() => {
@@ -81,19 +85,28 @@ const HomePageData: FC<HomePageDataProps> = ({ quizTemplates }) => {
       <AddQuizTemplateDialog
         onClose={handleDialogClose}
         open={isDialogOpen}
+        user={user}
       />
     </>
   );
 };
 
 export const HomePage: FC = () => {
-  const { data, error, loading } = useQuery(GET_QUIZ_TEMPLATES_QUERY);
+  const { user } = useUser();
+
+  const { data, error, loading } = useQuery(GET_QUIZ_TEMPLATES_QUERY, {
+    skip: !user,
+    variables: {
+      userId: user?.id || "",
+    },
+  });
 
   const content = (() => {
+    if (!user) return <HomePageAnonymous />;
     if (error) return <HomePageError error={error} />;
     if (loading) return <HomePageLoading />;
-    if (!data) return <HomePageError error="No data" />;
-    return <HomePageData quizTemplates={data.quizTemplate.all} />;
+    if (!data) return <HomePageError error="Unexpected error: No data" />;
+    return <HomePageData quizTemplates={data.quizTemplate.byUserId} user={user} />;
   })();
 
   return (

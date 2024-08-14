@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="icon" href="https://via.placeholder.com/70x70">
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My title</title>
+</head>
+
+<body>
+    <header>
+        <h1>Test Login</h1>
+    </header>
+    <main>
+        <section>
+            <form id="login-form" method="post">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" size="20">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" size="20">
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById("login-form");
+
+        form.addEventListener("submit", ev => {
+            ev.preventDefault();
+
+            const fd = new FormData(form);
+
+            const username = fd.get("username");
+            const password = fd.get("password");
+
+            const authString = `${username}:${password}`;
+
+            const token = btoa(Array.from(new TextEncoder().encode(authString), byte => String.fromCodePoint(byte)).join(""));
+
+            fetch("/login", {
+                headers: {
+                    "Authorization": `Basic ${token}`,
+                },
+                method: "POST",
+            }).then(response => {
+
+                if (!response.ok) {
+                    console.error(response.status, response.statusText);
+                    response.text().then(text => {
+                        console.error(text);
+                    });
+                } else {
+                    window.location.href = "/graphiql";
+                }
+            });
+        }, true);
+    </script>
+</body>
+
+</html>

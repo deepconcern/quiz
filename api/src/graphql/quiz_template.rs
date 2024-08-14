@@ -38,9 +38,12 @@ impl QuizTemplate {
     async fn questions(&self, context: &Context) -> FieldResult<Vec<Question>> {
         let id = ObjectId::from_str(&self.id.to_string())?;
 
-        let results = context.questions.read_by_filter(doc! {
-            "quiz_template_id": id,
-        }).await?;
+        let results = context
+            .questions
+            .read_by_filter(doc! {
+                "quiz_template_id": id,
+            })
+            .await?;
 
         Ok(results.iter().map(Question::from_model).collect())
     }
@@ -49,6 +52,7 @@ impl QuizTemplate {
 #[derive(GraphQLInputObject)]
 struct CreateQuizTemplate {
     name: String,
+    user_id: String,
 }
 
 impl CreateQuizTemplate {
@@ -56,6 +60,7 @@ impl CreateQuizTemplate {
         models::QuizTemplate {
             id: ObjectId::new().to_string(),
             name: self.name.clone(),
+            user_id: self.user_id.clone(),
         }
     }
 }
@@ -63,6 +68,7 @@ impl CreateQuizTemplate {
 #[derive(GraphQLInputObject)]
 struct EditQuizTemplate {
     name: String,
+    user_id: String,
 }
 
 impl EditQuizTemplate {
@@ -70,6 +76,7 @@ impl EditQuizTemplate {
         models::QuizTemplate {
             id: id.to_string(),
             name: self.name.clone(),
+            user_id: self.user_id.clone(),
         }
     }
 }
@@ -79,7 +86,11 @@ pub struct QuizTemplateMutation;
 #[graphql_object]
 #[graphql(context = Context)]
 impl QuizTemplateMutation {
-    async fn create(&self, context: &Context, input: CreateQuizTemplate) -> FieldResult<QuizTemplate> {
+    async fn create(
+        &self,
+        context: &Context,
+        input: CreateQuizTemplate,
+    ) -> FieldResult<QuizTemplate> {
         let input_model = input.to_model();
 
         let model = context.quiz_templates.create(&input_model).await?;
@@ -88,24 +99,25 @@ impl QuizTemplateMutation {
     }
 
     async fn delete_by_id(&self, context: &Context, id: ID) -> FieldResult<bool> {
-        context.questions.delete_by_filter(doc! {
-            "quiz_template_id": &id.to_string(),
-        }).await?;
+        context
+            .questions
+            .delete_by_filter(doc! {
+                "quiz_template_id": &id.to_string(),
+            })
+            .await?;
 
         let result = context.quiz_templates.delete_by_id(&id.to_string()).await?;
 
         Ok(result)
     }
 
-    async fn edit(
-        &self,
-        context: &Context,
-        id: ID,
-        input: EditQuizTemplate,
-    ) -> FieldResult<bool> {
+    async fn edit(&self, context: &Context, id: ID, input: EditQuizTemplate) -> FieldResult<bool> {
         let input_model = input.to_model(&id.to_string());
 
-        let result = context.quiz_templates.update_by_id(&id.to_string(), &input_model).await?;
+        let result = context
+            .quiz_templates
+            .update_by_id(&id.to_string(), &input_model)
+            .await?;
 
         Ok(result)
     }
@@ -129,5 +141,16 @@ impl QuizTemplateQuery {
             Some(model) => Some(QuizTemplate::from_model(&model)),
             None => None,
         })
+    }
+
+    async fn by_user_id(&self, context: &Context, user_id: ID) -> FieldResult<Vec<QuizTemplate>> {
+        let models = context
+            .quiz_templates
+            .read_by_filter(doc! {
+                "user_id": ObjectId::from_str(&user_id.to_string())?,
+            })
+            .await?;
+
+        Ok(models.iter().map(QuizTemplate::from_model).collect())
     }
 }

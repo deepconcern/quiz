@@ -18,15 +18,18 @@ import {
   CREATE_QUIZ_TEMPLATE_MUTATION,
   GET_QUIZ_TEMPLATES_QUERY,
 } from "../../queries";
+import { User } from "../../gql/graphql";
 
 export type AddQuizTemplateDialogProps = {
   onClose: () => void;
   open: boolean;
+  user: User;
 };
 
 export const AddQuizTemplateDialog: FC<AddQuizTemplateDialogProps> = ({
   onClose,
   open,
+  user,
 }) => {
   const [name, setName] = useState("");
 
@@ -51,13 +54,14 @@ export const AddQuizTemplateDialog: FC<AddQuizTemplateDialogProps> = ({
         variables: {
           input: {
             name,
+            userId: user.id,
           },
         },
       });
 
       navigate(`/quiz-template/${data?.quizTemplate.create.id}`);
     },
-    [createQuizTemplate, name, navigate]
+    [createQuizTemplate, name, navigate, user]
   );
 
   return (

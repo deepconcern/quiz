@@ -4,13 +4,20 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+argon2 = "0.5.3"
+base64 = "0.22.1"
 dotenvy = "0.15.7"
 juniper = "0.16.1"
 juniper_rocket = "0.9.0"
+lazy_static = "1.5.0"
 mongodb = "3.0.1"
-rocket = "0.5.1"
-rocket_cors = "0.6.0"
-serde = { version = "1.0.204", features = ["derive"]}
+rand = "0.8.5"
+rand_chacha = "0.3.1"
+redis = { version = "0.25.4", features = ["aio", "tokio-comp"] }
+regex = "1.10.5"
+rocket = { version = "0.5.1", features = ["secrets"] }
+serde = { version = "1.0.204", features = ["derive"] }
+uuid = "1.10.0"
 
 [dev-dependencies]
 tokio = "1.17.0"

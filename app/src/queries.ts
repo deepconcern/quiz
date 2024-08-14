@@ -83,12 +83,21 @@ export const GET_QUIZ_TEMPLATE_QUERY = graphql(`
 `);
 
 export const GET_QUIZ_TEMPLATES_QUERY = graphql(`
-  query GetQuizTemplates {
+  query GetQuizTemplates($userId: ID!) {
     quizTemplate {
-      all {
+      byUserId(userId: $userId) {
         id
         name
       }
+    }
+  }
+`);
+
+export const GET_USER_QUERY = graphql(/* GraphQL */`
+  query GetUser {
+    user {
+      id
+      username
     }
   }
 `);

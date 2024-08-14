@@ -19,32 +19,35 @@ import {
   FC,
   MouseEvent,
   useCallback,
-  useEffect,
   useState,
 } from "react";
 import { useParams } from "react-router-dom";
 
 import { AddQuestionDialog, EditQuestionDialog } from "../components/question-dialogs";
 import { Page } from "../components/Page";
-import { QuizTemplate } from "../gql/graphql";
+import { QuizTemplate, User } from "../gql/graphql";
 import { DELETE_QUESTION_MUTATION, GET_QUIZ_TEMPLATE_QUERY } from "../queries";
 import { DeleteQuizTemplateDialog, EditQuizTemplateDialog } from "../components/quiz-template-dialogs";
+import { useError } from "../hooks/useError";
+import { useUser } from "../hooks/useUser";
 
 type QuizTemplatePageErrorProps = {
   error: ApolloError | string;
 };
 
+const QuizTemplateAnonymous: FC = () => (
+  <div>Login to view</div>
+);
+
 const QuizTemplatePageError: FC<QuizTemplatePageErrorProps> = ({ error }) => {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
+  useError(error);
 
   return <div>ERROR</div>;
 };
 
-const QuizTemplatePageLoading: FC = () => {
-  return <div>LOADING</div>;
-};
+const QuizTemplatePageLoading: FC = () => (
+  <div>LOADING</div>
+);
 
 type ModalKey =
   | "add-question"
@@ -54,10 +57,12 @@ type ModalKey =
 
 type QuizTemplatePageDataProps = {
   quizTemplate: QuizTemplate;
+  user: User;
 };
 
 const QuizTemplatePageData: FC<QuizTemplatePageDataProps> = ({
   quizTemplate,
+  user,
 }) => {
   const [openDialog, setOpenDialog] = useState<ModalKey | null>(null);
   const [editQuestionId, setEditQuestionId] = useState<string | null>(null);
@@ -172,6 +177,7 @@ const QuizTemplatePageData: FC<QuizTemplatePageDataProps> = ({
         onClose={handleDialogClose}
         open={openDialog === "edit-quiz-template"}
         quizTemplate={quizTemplate}
+        user={user}
       />
     </>
   );
@@ -186,12 +192,15 @@ export const QuizTemplatePage: FC = () => {
     },
   });
 
+  const { user } = useUser();
+
   const content = (() => {
+    if (!user) return <QuizTemplateAnonymous/>;
     if (error) return <QuizTemplatePageError error={error} />;
     if (!quizTemplateId || loading) return <QuizTemplatePageLoading />;
     if (!data?.quizTemplate.byId)
       return <QuizTemplatePageError error="No data" />;
-    return <QuizTemplatePageData quizTemplate={data.quizTemplate.byId} />;
+    return <QuizTemplatePageData quizTemplate={data.quizTemplate.byId} user={user} />;
   })();
 
   return (

@@ -12,7 +12,7 @@ import {
   useState,
 } from "react";
 
-import { Question } from "../gql/graphql";
+import { Question } from "../../gql/graphql";
 
 export type QuestionDialogBaseProps = {
   mode: "add" | "edit";
