@@ -55,7 +55,9 @@ impl SessionStorage {
     }
 
     fn get_session_id(&self, cookie_jar: &CookieJar<'_>) -> Option<String> {
-        cookie_jar.get_private(SESSION_COOKIE).map(|c| c.value_trimmed().to_string())
+        cookie_jar
+            .get_private(SESSION_COOKIE)
+            .map(|c| c.value_trimmed().to_string())
     }
 
     pub async fn get_session(
@@ -65,8 +67,6 @@ impl SessionStorage {
         let Some(session_id) = self.get_session_id(cookie_jar) else {
             return Ok(None);
         };
-
-        println!("DEBUG: session_id = {:?}", session_id);
 
         let user_id: Option<String> = self.connection.get(session_id).await?;
 
@@ -129,7 +129,10 @@ impl SessionStorage {
             break;
         }
 
-        let _: () = self.connection.set_ex(&session_id, user_id, FIFTEEN_DAYS).await?;
+        let _: () = self
+            .connection
+            .set_ex(&session_id, user_id, FIFTEEN_DAYS)
+            .await?;
 
         cookie_jar.remove_private(SESSION_COOKIE);
         cookie_jar.add_private(
@@ -140,7 +143,7 @@ impl SessionStorage {
 
         Ok(())
     }
-}   
+}
 
 #[rocket::async_trait]
 impl<'r> FromRequest<'r> for SessionStorage {
@@ -152,7 +155,10 @@ impl<'r> FromRequest<'r> for SessionStorage {
 
         let session_connection = match session_client.get_multiplexed_async_connection().await {
             Ok(s) => s,
-            Err(_) => return Outcome::Error((Status::InternalServerError, ())),
+            Err(e) => {
+                eprintln!("Error getting redis connection: {:?}", e);
+                return Outcome::Error((Status::InternalServerError, ()));
+            }
         };
 
         Outcome::Success(Self::new(session_connection))

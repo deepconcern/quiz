@@ -8,11 +8,13 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
-      proxy: ["graphql", "login", "logout", "signup"].reduce<Record<string, string>>((proxy, route) => {
-        proxy["/" + route] = env.VITE_API_URI;
-
-        return proxy;
-      }, {}),
+      proxy: {
+        "/api": {
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/api/, ""),
+          target: env.VITE_API_URI,
+        },
+      }
     },
   };
 });

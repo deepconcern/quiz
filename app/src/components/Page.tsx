@@ -46,7 +46,7 @@ const LoginDialog: FC<LoginDialogProps> = ({ onClose, open }) => {
 
     const token = btoa(Array.from(new TextEncoder().encode(authString), byte => String.fromCodePoint(byte)).join(""));
 
-    const response = await fetch(`/${mode}`, {
+    const response = await fetch(`/api/${mode}`, {
       headers: {
         "Authorization": `Basic ${token}`,
       },
@@ -143,7 +143,7 @@ export const Page: FC<PagePropx> = ({ children, sx }) => {
   const handleLogoutClick = useCallback(async (ev: MouseEvent<HTMLAnchorElement>) => {
     ev.preventDefault();
 
-    const response = await fetch("/logout", {
+    const response = await fetch("/api/logout", {
       method: "POST",
     });
 

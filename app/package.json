@@ -26,6 +26,7 @@
     "@graphql-codegen/cli": "5.0.2",
     "@graphql-codegen/client-preset": "4.3.2",
     "@parcel/watcher": "^2.4.1",
+    "@types/bun": "^1.1.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",

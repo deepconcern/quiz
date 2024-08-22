@@ -1,0 +1,39 @@
+secrets:
+  db_root_password: 
+    file: secrets/db_root_password.txt
+  db_user_password: 
+    file: secrets/db_user_password.txt
+services:
+  app:
+   build: app
+   environment:
+    API_URI: http://api:8000/
+   ports: ["5173:5173"]
+  api:
+    build: api
+    env_file: ./api/.env.docker
+    environment:
+      MONGODB_DATABASE: quiz
+      MONGODB_DOMAIN: db:27017
+      MONGODB_PASSWORD_FILE: /run/secrets/db_user_password
+      MONGODB_USERNAME: quiz
+      REDIS_CONNECTION_STRING: redis://session:6379/
+      ROCKET_ADDRESS: 0.0.0.0
+    secrets:
+      - db_user_password
+  db:
+    environment:
+      MONGO_INITDB_DATABASE: quiz
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MONGO_INITDB_USER_USERNAME: quiz
+      MONGO_INITDB_USER_PASSWORD_FILE: /run/secrets/db_user_password
+    image: mongo
+    restart: always
+    secrets:
+      - db_root_password
+      - db_user_password
+    volumes:
+      - ./mongodb-init.js:/docker-entrypoint-initdb.d/mongodb-init.js:ro
+  session:
+    image: redis:alpine
