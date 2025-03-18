@@ -1,5 +1,18 @@
 import { graphql } from "./gql";
 
+export const GET_CURRENT_USER_QUERY = graphql(`
+  query GetCurrentUser {
+    currentUser {
+      id
+      quizTemplates {
+        id
+        name
+      }
+      username
+    }
+  }
+`);
+
 export const CREATE_QUESTION_MUTATION = graphql(`
   mutation CreateQuestion($input: CreateQuestion!) {
     question {
@@ -39,17 +52,23 @@ export const DELETE_QUIZ_TEMPLATE_MUTATION = graphql(`
 `);
 
 export const EDIT_QUESTION_MUTATION = graphql(`
-  mutation EditQuestion($id: ID!, $input: EditQuestion!) {
+  mutation EditQuestion($input: EditQuestion!) {
     question {
-      edit(id: $id, input: $input)
+      edit(input: $input) {
+        answer
+        id
+        question
+      }
     }
   }
 `);
 
 export const EDIT_QUIZ_TEMPLATE_MUTATION = graphql(`
-  mutation EditQuizTemplate($id: ID!, $input: EditQuizTemplate!) {
+  mutation EditQuizTemplate($input: EditQuizTemplate!) {
     quizTemplate {
-      edit(id: $id, input: $input)
+      edit(input: $input) {
+        name
+      }
     }
   }
 `);
@@ -89,15 +108,6 @@ export const GET_QUIZ_TEMPLATES_QUERY = graphql(`
         id
         name
       }
-    }
-  }
-`);
-
-export const GET_USER_QUERY = graphql(/* GraphQL */`
-  query GetUser {
-    user {
-      id
-      username
     }
   }
 `);

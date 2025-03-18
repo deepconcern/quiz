@@ -13,16 +13,16 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
+    "\n  query GetCurrentUser {\n    currentUser {\n      id\n      quizTemplates {\n        id\n        name\n      }\n      username\n    }\n  }\n": types.GetCurrentUserDocument,
     "\n  mutation CreateQuestion($input: CreateQuestion!) {\n    question {\n      create(input: $input) {\n        answer\n        id\n        question\n      }\n    }\n  }\n": types.CreateQuestionDocument,
     "\n  mutation CreateQuizTemplate($input: CreateQuizTemplate!) {\n    quizTemplate {\n      create(input: $input) {\n        id\n      }\n    }\n  }\n": types.CreateQuizTemplateDocument,
     "\n  mutation DeleteQuestion($id: ID!) {\n    question {\n      deleteById(id: $id)\n    }\n  }\n": types.DeleteQuestionDocument,
     "\n  mutation DeleteQuizTemplate($id: ID!) {\n    quizTemplate {\n      deleteById(id: $id)\n    }\n  }\n": types.DeleteQuizTemplateDocument,
-    "\n  mutation EditQuestion($id: ID!, $input: EditQuestion!) {\n    question {\n      edit(id: $id, input: $input)\n    }\n  }\n": types.EditQuestionDocument,
-    "\n  mutation EditQuizTemplate($id: ID!, $input: EditQuizTemplate!) {\n    quizTemplate {\n      edit(id: $id, input: $input)\n    }\n  }\n": types.EditQuizTemplateDocument,
+    "\n  mutation EditQuestion($input: EditQuestion!) {\n    question {\n      edit(input: $input) {\n        answer\n        id\n        question\n      }\n    }\n  }\n": types.EditQuestionDocument,
+    "\n  mutation EditQuizTemplate($input: EditQuizTemplate!) {\n    quizTemplate {\n      edit(input: $input) {\n        name\n      }\n    }\n  }\n": types.EditQuizTemplateDocument,
     "\n  query GetQuestion($id: ID!) {\n    question {\n      byId(id: $id) {\n        answer\n        id\n        question\n      }\n    }\n  }\n": types.GetQuestionDocument,
     "\n  query GetQuizTemplate($id: ID!) {\n    quizTemplate {\n      byId(id: $id) {\n        id\n        name\n        questions {\n          answer\n          id\n          question\n        }\n      }\n    }\n  }\n": types.GetQuizTemplateDocument,
     "\n  query GetQuizTemplates($userId: ID!) {\n    quizTemplate {\n      byUserId(userId: $userId) {\n        id\n        name\n      }\n    }\n  }\n": types.GetQuizTemplatesDocument,
-    "\n  query GetUser {\n    user {\n      id\n      username\n    }\n  }\n": types.GetUserDocument,
 };
 
 /**
@@ -42,6 +42,10 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n  query GetCurrentUser {\n    currentUser {\n      id\n      quizTemplates {\n        id\n        name\n      }\n      username\n    }\n  }\n"): (typeof documents)["\n  query GetCurrentUser {\n    currentUser {\n      id\n      quizTemplates {\n        id\n        name\n      }\n      username\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n  mutation CreateQuestion($input: CreateQuestion!) {\n    question {\n      create(input: $input) {\n        answer\n        id\n        question\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreateQuestion($input: CreateQuestion!) {\n    question {\n      create(input: $input) {\n        answer\n        id\n        question\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -58,11 +62,11 @@ export function graphql(source: "\n  mutation DeleteQuizTemplate($id: ID!) {\n  
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  mutation EditQuestion($id: ID!, $input: EditQuestion!) {\n    question {\n      edit(id: $id, input: $input)\n    }\n  }\n"): (typeof documents)["\n  mutation EditQuestion($id: ID!, $input: EditQuestion!) {\n    question {\n      edit(id: $id, input: $input)\n    }\n  }\n"];
+export function graphql(source: "\n  mutation EditQuestion($input: EditQuestion!) {\n    question {\n      edit(input: $input) {\n        answer\n        id\n        question\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation EditQuestion($input: EditQuestion!) {\n    question {\n      edit(input: $input) {\n        answer\n        id\n        question\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  mutation EditQuizTemplate($id: ID!, $input: EditQuizTemplate!) {\n    quizTemplate {\n      edit(id: $id, input: $input)\n    }\n  }\n"): (typeof documents)["\n  mutation EditQuizTemplate($id: ID!, $input: EditQuizTemplate!) {\n    quizTemplate {\n      edit(id: $id, input: $input)\n    }\n  }\n"];
+export function graphql(source: "\n  mutation EditQuizTemplate($input: EditQuizTemplate!) {\n    quizTemplate {\n      edit(input: $input) {\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation EditQuizTemplate($input: EditQuizTemplate!) {\n    quizTemplate {\n      edit(input: $input) {\n        name\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -75,10 +79,6 @@ export function graphql(source: "\n  query GetQuizTemplate($id: ID!) {\n    quiz
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query GetQuizTemplates($userId: ID!) {\n    quizTemplate {\n      byUserId(userId: $userId) {\n        id\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetQuizTemplates($userId: ID!) {\n    quizTemplate {\n      byUserId(userId: $userId) {\n        id\n        name\n      }\n    }\n  }\n"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  query GetUser {\n    user {\n      id\n      username\n    }\n  }\n"): (typeof documents)["\n  query GetUser {\n    user {\n      id\n      username\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

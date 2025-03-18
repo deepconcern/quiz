@@ -19,23 +19,25 @@ export type Scalars = {
 export type CreateQuestion = {
   answer: Scalars['String']['input'];
   question: Scalars['String']['input'];
-  quizTemplateId: Scalars['String']['input'];
+  quizTemplateId: Scalars['ID']['input'];
 };
 
 export type CreateQuizTemplate = {
   name: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 export type EditQuestion = {
   answer: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
   question: Scalars['String']['input'];
-  quizTemplateId: Scalars['String']['input'];
+  quizTemplateId: Scalars['ID']['input'];
 };
 
 export type EditQuizTemplate = {
+  id: Scalars['ID']['input'];
   name: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 export type Mutation = {
@@ -46,10 +48,10 @@ export type Mutation = {
 
 export type Query = {
   __typename?: 'Query';
-  apiVersion: Scalars['String']['output'];
+  currentUser?: Maybe<User>;
   question: QuestionQuery;
   quizTemplate: QuizTemplateQuery;
-  user?: Maybe<User>;
+  user: UserQuery;
 };
 
 export type Question = {
@@ -57,13 +59,14 @@ export type Question = {
   answer: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   question: Scalars['String']['output'];
+  quizTemplate: QuizTemplate;
 };
 
 export type QuestionMutation = {
   __typename?: 'QuestionMutation';
   create: Question;
   deleteById: Scalars['Boolean']['output'];
-  edit: Scalars['Boolean']['output'];
+  edit: Question;
 };
 
 
@@ -78,14 +81,13 @@ export type QuestionMutationDeleteByIdArgs = {
 
 
 export type QuestionMutationEditArgs = {
-  id: Scalars['ID']['input'];
   input: EditQuestion;
 };
 
 export type QuestionQuery = {
   __typename?: 'QuestionQuery';
   all: Array<Question>;
-  byId?: Maybe<Question>;
+  byId: Question;
 };
 
 
@@ -104,7 +106,7 @@ export type QuizTemplateMutation = {
   __typename?: 'QuizTemplateMutation';
   create: QuizTemplate;
   deleteById: Scalars['Boolean']['output'];
-  edit: Scalars['Boolean']['output'];
+  edit: QuizTemplate;
 };
 
 
@@ -119,14 +121,13 @@ export type QuizTemplateMutationDeleteByIdArgs = {
 
 
 export type QuizTemplateMutationEditArgs = {
-  id: Scalars['ID']['input'];
   input: EditQuizTemplate;
 };
 
 export type QuizTemplateQuery = {
   __typename?: 'QuizTemplateQuery';
   all: Array<QuizTemplate>;
-  byId?: Maybe<QuizTemplate>;
+  byId: QuizTemplate;
   byUserId: Array<QuizTemplate>;
 };
 
@@ -143,8 +144,25 @@ export type QuizTemplateQueryByUserIdArgs = {
 export type User = {
   __typename?: 'User';
   id: Scalars['ID']['output'];
+  quizTemplates: Array<QuizTemplate>;
   username: Scalars['String']['output'];
 };
+
+export type UserQuery = {
+  __typename?: 'UserQuery';
+  all: Array<User>;
+  byId: User;
+};
+
+
+export type UserQueryByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCurrentUserQuery = { __typename?: 'Query', currentUser?: { __typename?: 'User', id: string, username: string, quizTemplates: Array<{ __typename?: 'QuizTemplate', id: string, name: string }> } | null };
 
 export type CreateQuestionMutationVariables = Exact<{
   input: CreateQuestion;
@@ -175,34 +193,32 @@ export type DeleteQuizTemplateMutationVariables = Exact<{
 export type DeleteQuizTemplateMutation = { __typename?: 'Mutation', quizTemplate: { __typename?: 'QuizTemplateMutation', deleteById: boolean } };
 
 export type EditQuestionMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
   input: EditQuestion;
 }>;
 
 
-export type EditQuestionMutation = { __typename?: 'Mutation', question: { __typename?: 'QuestionMutation', edit: boolean } };
+export type EditQuestionMutation = { __typename?: 'Mutation', question: { __typename?: 'QuestionMutation', edit: { __typename?: 'Question', answer: string, id: string, question: string } } };
 
 export type EditQuizTemplateMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
   input: EditQuizTemplate;
 }>;
 
 
-export type EditQuizTemplateMutation = { __typename?: 'Mutation', quizTemplate: { __typename?: 'QuizTemplateMutation', edit: boolean } };
+export type EditQuizTemplateMutation = { __typename?: 'Mutation', quizTemplate: { __typename?: 'QuizTemplateMutation', edit: { __typename?: 'QuizTemplate', name: string } } };
 
 export type GetQuestionQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuestionQuery = { __typename?: 'Query', question: { __typename?: 'QuestionQuery', byId?: { __typename?: 'Question', answer: string, id: string, question: string } | null } };
+export type GetQuestionQuery = { __typename?: 'Query', question: { __typename?: 'QuestionQuery', byId: { __typename?: 'Question', answer: string, id: string, question: string } } };
 
 export type GetQuizTemplateQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuizTemplateQuery = { __typename?: 'Query', quizTemplate: { __typename?: 'QuizTemplateQuery', byId?: { __typename?: 'QuizTemplate', id: string, name: string, questions: Array<{ __typename?: 'Question', answer: string, id: string, question: string }> } | null } };
+export type GetQuizTemplateQuery = { __typename?: 'Query', quizTemplate: { __typename?: 'QuizTemplateQuery', byId: { __typename?: 'QuizTemplate', id: string, name: string, questions: Array<{ __typename?: 'Question', answer: string, id: string, question: string }> } } };
 
 export type GetQuizTemplatesQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -211,19 +227,14 @@ export type GetQuizTemplatesQueryVariables = Exact<{
 
 export type GetQuizTemplatesQuery = { __typename?: 'Query', quizTemplate: { __typename?: 'QuizTemplateQuery', byUserId: Array<{ __typename?: 'QuizTemplate', id: string, name: string }> } };
 
-export type GetUserQueryVariables = Exact<{ [key: string]: never; }>;
 
-
-export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, username: string } | null };
-
-
+export const GetCurrentUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetCurrentUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"currentUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"quizTemplates"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"username"}}]}}]}}]} as unknown as DocumentNode<GetCurrentUserQuery, GetCurrentUserQueryVariables>;
 export const CreateQuestionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateQuestion"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateQuestion"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"question"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"create"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"answer"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"question"}}]}}]}}]}}]} as unknown as DocumentNode<CreateQuestionMutation, CreateQuestionMutationVariables>;
 export const CreateQuizTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateQuizTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateQuizTemplate"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"quizTemplate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"create"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<CreateQuizTemplateMutation, CreateQuizTemplateMutationVariables>;
 export const DeleteQuestionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteQuestion"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"question"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]}}]} as unknown as DocumentNode<DeleteQuestionMutation, DeleteQuestionMutationVariables>;
 export const DeleteQuizTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteQuizTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"quizTemplate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteById"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]}}]} as unknown as DocumentNode<DeleteQuizTemplateMutation, DeleteQuizTemplateMutationVariables>;
-export const EditQuestionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"EditQuestion"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EditQuestion"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"question"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]}}]} as unknown as DocumentNode<EditQuestionMutation, EditQuestionMutationVariables>;
-export const EditQuizTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"EditQuizTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EditQuizTemplate"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"quizTemplate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]}}]} as unknown as DocumentNode<EditQuizTemplateMutation, EditQuizTemplateMutationVariables>;
+export const EditQuestionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"EditQuestion"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EditQuestion"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"question"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"answer"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"question"}}]}}]}}]}}]} as unknown as DocumentNode<EditQuestionMutation, EditQuestionMutationVariables>;
+export const EditQuizTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"EditQuizTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EditQuizTemplate"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"quizTemplate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edit"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<EditQuizTemplateMutation, EditQuizTemplateMutationVariables>;
 export const GetQuestionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetQuestion"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"question"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"byId"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"answer"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"question"}}]}}]}}]}}]} as unknown as DocumentNode<GetQuestionQuery, GetQuestionQueryVariables>;
 export const GetQuizTemplateDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetQuizTemplate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"quizTemplate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"byId"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"questions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"answer"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"question"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetQuizTemplateQuery, GetQuizTemplateQueryVariables>;
 export const GetQuizTemplatesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetQuizTemplates"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"quizTemplate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"byUserId"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<GetQuizTemplatesQuery, GetQuizTemplatesQueryVariables>;
-export const GetUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"username"}}]}}]}}]} as unknown as DocumentNode<GetUserQuery, GetUserQueryVariables>;

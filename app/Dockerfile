@@ -17,10 +17,8 @@ RUN bun run build
 
 FROM nginx:alpine AS app
 
-COPY --from=build /usr/src/app/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /usr/share/nginx/html
-
-RUN rm -rf ./*
 
 COPY --from=build /usr/src/app/dist .
