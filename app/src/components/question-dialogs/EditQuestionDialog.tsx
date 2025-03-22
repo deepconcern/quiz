@@ -37,14 +37,14 @@ export const EditQuestionDialog: FC<EditQuestionDialogProps> = ({
   });
 
   const handleSubmit = useCallback(
-    async (question: Omit<Question, "id">) => {
+    async (question: Omit<Question, "id" | "quizTemplate">) => {
       if (!data || !questionId) return;
 
       await editQuestion({
         variables: {
-          id: questionId,
           input: {
             ...question,
+            id: questionId,
             quizTemplateId,
           },
         },

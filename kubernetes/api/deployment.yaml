@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quiz-api-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {} # Added by Kustomize
+  template:
+    metadata:
+      labels: {} # Added by Kustomize
+    spec:
+      containers:
+        - args: ["-b", "0.0.0.0:5000", "app"]
+          command: ["gunicorn"]
+          env:
+            - name: DB_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  key: DB_CONNECTION_STRING
+                  name: quiz-secrets
+            - name: SESSION_CLIENT_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  key: SESSION_CLIENT_CONNECTION_STRING
+                  name: quiz-secrets
+          name: quiz-api
+          image: registry.wyattlbarnes.com/quiz/quiz-api
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8000
+      imagePullSecrets:
+        - name: regcred

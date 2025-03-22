@@ -7,7 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
 import { ChangeEvent, FC, FormEvent, useCallback, useState } from "react";
 
-import { QuizTemplate, User } from "../../gql/graphql";
+import { GetCurrentUserQuery, GetQuizTemplateQuery } from "../../gql/graphql";
 import {
   EDIT_QUIZ_TEMPLATE_MUTATION,
   GET_QUIZ_TEMPLATE_QUERY,
@@ -16,8 +16,8 @@ import {
 export type EditQuizTemplateDialogProps = {
   onClose: () => void;
   open: boolean;
-  quizTemplate: QuizTemplate;
-  user: User;
+  quizTemplate: NonNullable<GetQuizTemplateQuery["quizTemplate"]["byId"]>;
+  user: NonNullable<GetCurrentUserQuery["currentUser"]>;
 };
 
 export const EditQuizTemplateDialog: FC<EditQuizTemplateDialogProps> = ({
@@ -45,8 +45,8 @@ export const EditQuizTemplateDialog: FC<EditQuizTemplateDialogProps> = ({
 
       await editQuizTemplate({
         variables: {
-          id: quizTemplate.id,
           input: {
+            id: quizTemplate.id,
             name,
             userId: user.id,
           },

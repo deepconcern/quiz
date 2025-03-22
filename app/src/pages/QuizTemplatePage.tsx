@@ -25,7 +25,7 @@ import { useParams } from "react-router-dom";
 
 import { AddQuestionDialog, EditQuestionDialog } from "../components/question-dialogs";
 import { Page } from "../components/Page";
-import { QuizTemplate, User } from "../gql/graphql";
+import { GetCurrentUserQuery, GetQuizTemplateQuery } from "../gql/graphql";
 import { DELETE_QUESTION_MUTATION, GET_QUIZ_TEMPLATE_QUERY } from "../queries";
 import { DeleteQuizTemplateDialog, EditQuizTemplateDialog } from "../components/quiz-template-dialogs";
 import { useError } from "../hooks/useError";
@@ -56,8 +56,8 @@ type ModalKey =
   | "edit-quiz-template";
 
 type QuizTemplatePageDataProps = {
-  quizTemplate: QuizTemplate;
-  user: User;
+  quizTemplate: NonNullable<GetQuizTemplateQuery["quizTemplate"]["byId"]>;
+  user: NonNullable<GetCurrentUserQuery["currentUser"]>;
 };
 
 const QuizTemplatePageData: FC<QuizTemplatePageDataProps> = ({

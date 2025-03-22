@@ -1,0 +1,9 @@
+#!/bin/sh
+
+SCRIPT_DIR=$(dirname "$0")
+IMAGE_BASE="registry.wyattlbarnes.com/quiz"
+VERSION=$1
+
+$SCRIPT_DIR/kustomize edit set image "$IMAGE_BASE/quiz-api:$VERSION" $SCRIPT_DIR/..
+$SCRIPT_DIR/kustomize edit set image "$IMAGE_BASE/quiz-app:$VERSION" $SCRIPT_DIR/..
+$SCRIPT_DIR/kustomize edit set label "app.kubernetes.io/version:$VERSION" $SCRIPT_DIR/..

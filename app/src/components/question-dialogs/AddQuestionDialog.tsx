@@ -21,7 +21,7 @@ export const AddQuestionDialog: FC<AddQuestionDialogProps> = ({
   });
 
   const handleSubmit = useCallback(
-    async (question: Omit<Question, "id">) => {
+    async (question: Omit<Question, "id" | "quizTemplate">) => {
       await createQuestion({
         variables: {
           input: {

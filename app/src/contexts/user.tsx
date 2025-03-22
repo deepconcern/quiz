@@ -1,12 +1,12 @@
 import { createContext, FC, PropsWithChildren, useMemo } from "react";
-import { User } from "../gql/graphql";
+import { GetCurrentUserQuery } from "../gql/graphql";
 import { useQuery } from "@apollo/client";
 import { GET_CURRENT_USER_QUERY } from "../queries";
 import { useError } from "../hooks/useError";
 
 export type UserData = {
     refetch: () => void,
-    user?: User | null,
+    user?: GetCurrentUserQuery["currentUser"],
 };
 
 export const UserContext = createContext<UserData>({

@@ -17,9 +17,9 @@ import { Question } from "../../gql/graphql";
 export type QuestionDialogBaseProps = {
   mode: "add" | "edit";
   onClose: () => void;
-  onSubmit: (question: Omit<Question, "id">) => void;
+  onSubmit: (question: Omit<Question, "id" | "quizTemplate">) => void;
   open: boolean;
-  defaultValues?: Omit<Question, "id"> | null;
+  defaultValues?: Omit<Question, "id" | "quizTemplate"> | null;
 };
 
 export const QuestionDialogBase: FC<QuestionDialogBaseProps> = ({

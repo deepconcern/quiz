@@ -14,16 +14,16 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { GetCurrentUserQuery } from "../../gql/graphql";
 import {
   CREATE_QUIZ_TEMPLATE_MUTATION,
   GET_QUIZ_TEMPLATES_QUERY,
 } from "../../queries";
-import { User } from "../../gql/graphql";
 
 export type AddQuizTemplateDialogProps = {
   onClose: () => void;
   open: boolean;
-  user: User;
+  user: NonNullable<GetCurrentUserQuery["currentUser"]>;
 };
 
 export const AddQuizTemplateDialog: FC<AddQuizTemplateDialogProps> = ({

@@ -139,3 +139,6 @@ def signup() -> Response:
     r.set_cookie(SESSION_COOKIE_NAME, session["id"])
 
     return r
+
+# For Gunicorn
+application = app

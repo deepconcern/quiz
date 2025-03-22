@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- api
+- app
+- ingress.yaml
+
+images:
+- name: registry.wyattlbarnes.com/quiz/quiz-api
+  newTag: "20250320.2"
+- name: registry.wyattlbarnes.com/quiz/quiz-app
+  newTag: "20250320.2"
+
+commonLabels:
+  app.kubernetes.io/instance: quiz-test
+  app.kubernetes.io/managed-by: Kustomize
+  app.kubernetes.io/name: quiz
+  app.kubernetes.io/part-of: quiz
+  app.kubernetes.io/version: "20250320.2"
+
+nameSuffix: -test
+
+secretGenerator:
+- envs:
+  - .env
+  name: quiz-secrets
+  type: Opaque

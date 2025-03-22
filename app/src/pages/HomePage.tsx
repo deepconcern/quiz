@@ -16,7 +16,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 
 import { Page } from "../components/Page";
-import { QuizTemplate, User } from "../gql/graphql";
+import { GetCurrentUserQuery, QuizTemplate } from "../gql/graphql";
 import { GET_QUIZ_TEMPLATES_QUERY } from "../queries";
 import { AddQuizTemplateDialog } from "../components/quiz-template-dialogs";
 import { useError } from "../hooks/useError";
@@ -42,7 +42,7 @@ const HomePageLoading: FC = () => (
 
 type HomePageDataProps = {
   quizTemplates: Omit<QuizTemplate, "questions">[];
-  user: User;
+  user: NonNullable<GetCurrentUserQuery["currentUser"]>;
 };
 
 const HomePageData: FC<HomePageDataProps> = ({ quizTemplates, user }) => {
